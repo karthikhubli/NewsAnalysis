@@ -29,11 +29,12 @@ app = Flask(__name__)
 api=Api(app)
 
 #a_language = api.model('Language', {'language' : fields.String('The language.')})
-#news_format=api.model('News', { 'news' : fields.String('Vietnam ')})
-credibility=[]
+news_format=api.model('News', { 'news' : fields.String('Vietnam ')})
+#credibility=[]
 
 news_parser = reqparse.RequestParser()
 news_parser.add_argument('news', required=True, help="Enter the news Article")
+news_parser.add_argument('title')
 
 
 print('Done with global variables')
@@ -72,15 +73,22 @@ def sentAnalysis(text):
 @api.expect(news_parser)
 class Credibility(Resource):
     def get(self):
-        global credibility
+        credibility=[]
         args = news_parser.parse_args()
         newsText=args['news']
-        print(newsText)
+        newsTitle=args['title']
+        print('-----------------------------',newsTitle)
         score=authenticateText(newsText)
         sent=sentAnalysis(newsText)
-        credibility.append( {'authenticity':str(score)})
-        credibility.append( {'polarity':sent[0]})
-        credibility.append( {'subjectivity':sent[1]})
+        titleScore=authenticateText(newsTitle)
+        titleSent=sentAnalysis(newsTitle)
+        credibility.append( {'news_authenticity':str(score)})
+        credibility.append( {'news_polarity':sent[0]})
+        credibility.append( {'news_subjectivity':sent[1]})
+        credibility.append( {'title_authenticity':str(titleScore)})
+        credibility.append( {'title_polarity':titleSent[0]})
+        credibility.append( {'title_subjectivity':titleSent[1]})
+        
         return credibility
 
 
