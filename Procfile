@@ -1,1 +1,1 @@
-web: invoke app.dependencies.install-swagger-ui app.run --no-install-dependencies --host 0.0.0.0 --port $PORT --flask-config development
+web: FLASK_APP=predictNewsAuthenticity.py python -m flask run
