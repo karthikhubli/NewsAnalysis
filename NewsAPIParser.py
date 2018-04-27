@@ -1,13 +1,14 @@
 
 # coding: utf-8
 
-# In[247]:
+# In[284]:
 
 
 from newsapi import NewsApiClient
 import bs4 as bs
 import urllib as urllib
 import urllib.request as ur
+import pandas as pd
 import tldextract
 import numpy as np
 from textblob import TextBlob
@@ -18,7 +19,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
 
-# In[248]:
+# In[285]:
 
 
 #Categories
@@ -28,10 +29,19 @@ TRAINED_MODEL='trainedModel.pkl'
 TFIDF_VECT='wordVect.pkl'
 nbModel = None
 vect= None
-fakeDomains=['www.bostonglobe.com','cnn-trending.com','DrudgeReport.com.co','Globalresearch.ca','infowars.com']
+fakeDomains=[]
+def init():
+    global fakeDomains
+    if(len(fakeDomains) == 0):
+        print('loading')
+        data=pd.read_csv('fakeDomain.csv', sep=',',header=0)
+        for row_index,row in data.iterrows():
+            fakeDomains.append(str(row['Domain']))
+    else:
+        print(len(fakeDomains))
 
 
-# In[249]:
+# In[286]:
 
 
 def getDomain(url):
@@ -77,7 +87,7 @@ def getFakeDomainCounts(domains):
     
 
 
-# In[250]:
+# In[287]:
 
 
 def authenticateText(text):
@@ -100,7 +110,7 @@ def sentAnalysis(text):
         return -100.0,-100.0
 
 
-# In[251]:
+# In[288]:
 
 
 def prepareHeadline(apiKey):
@@ -158,8 +168,8 @@ def prepareHeadlineByTopic(apiKey,keyword,cat):
     return headlines,rowCount
 
 
-# In[252]:
+# In[290]:
 
 
-
+init()
 
