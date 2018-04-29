@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[284]:
+# In[244]:
 
 
 from newsapi import NewsApiClient
@@ -19,7 +19,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 
 
-# In[285]:
+# In[245]:
 
 
 #Categories
@@ -41,7 +41,7 @@ def init():
         print(len(fakeDomains))
 
 
-# In[286]:
+# In[246]:
 
 
 def getDomain(url):
@@ -58,6 +58,22 @@ def getTopHeadLinesByCateg(apiKey,topic,categ):
                                           language='en',
                                           country='us')
     return top_headlines['articles']
+
+def getAll(apiKey,topic,dtFrom,dtTo,pg):
+    newsapi = NewsApiClient(api_key=apiKey)
+#     print(dtFrom)
+#     print(topic)
+#     print(dtTo)
+    all_articles = newsapi.get_everything(q=topic,
+                                      sources='bbc-news,the-verge,bloomberg',
+                                      domains='bbc.co.uk,techcrunch.com,cnn.com',
+                                      from_param=dtFrom,
+                                      to=dtTo,
+                                      page_size=40,
+                                      language='en',
+                                      sort_by='publishedAt',
+                                      page=pg)
+    return all_articles['articles'],all_articles['totalResults']
 
 def getAllReferencesOnPage(url):
     
@@ -87,7 +103,7 @@ def getFakeDomainCounts(domains):
     
 
 
-# In[287]:
+# In[247]:
 
 
 def authenticateText(text):
@@ -110,7 +126,7 @@ def sentAnalysis(text):
         return -100.0,-100.0
 
 
-# In[288]:
+# In[248]:
 
 
 def prepareHeadline(apiKey):
@@ -130,6 +146,7 @@ def prepareHeadline(apiKey):
          articleBlock.append( {'title':article['title']})
          articleBlock.append( {'desc':article['description']})
          articleBlock.append( {'url':article['url']})
+         articleBlock.append( {'image':article['urlToImage']})
          articleBlock.append( {'authenticity':str(authenticateText(artStr))})
          articleBlock.append( {'descPol':str(descSent[0])})
          articleBlock.append( {'descSub':str(descSent[1])})
@@ -157,6 +174,7 @@ def prepareHeadlineByTopic(apiKey,keyword,cat):
          articleBlock.append( {'title':article['title']})
          articleBlock.append( {'desc':article['description']})
          articleBlock.append( {'url':article['url']})
+         articleBlock.append( {'image':article['urlToImage']})
          articleBlock.append( {'authenticity':str(authenticateText(artStr))})
          articleBlock.append( {'descPol':str(descSent[0])})
          articleBlock.append( {'descSub':str(descSent[1])})
@@ -168,7 +186,7 @@ def prepareHeadlineByTopic(apiKey,keyword,cat):
     return headlines,rowCount
 
 
-# In[290]:
+# In[249]:
 
 
 init()
