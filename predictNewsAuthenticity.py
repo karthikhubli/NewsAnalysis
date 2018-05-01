@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[48]:
+# In[3]:
 
 
 import tldextract
@@ -13,6 +13,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 from flask import Flask,Blueprint
 from flask_restplus import Api,Resource,fields,reqparse
+from flask_cors import CORS
 from textblob import TextBlob
 import six
 import NewsAPIParser as nparse
@@ -21,7 +22,7 @@ from datetime import timedelta
 from functools import update_wrapper
 
 
-# In[49]:
+# In[4]:
 
 
 TRAINED_MODEL='trainedModel.pkl'
@@ -29,6 +30,7 @@ TFIDF_VECT='wordVect.pkl'
 nbModel = None
 vect= None
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 blueprint=Blueprint('api',__name__,url_prefix="/api")
 api=Api(blueprint,doc="/documentation")
 app.register_blueprint(blueprint)
@@ -49,7 +51,7 @@ update_parser=reqparse.RequestParser()
 update_parser.add_argument('feedback', required=True, help="Enter the news Article")
 
 
-# In[51]:
+# In[ ]:
 
 
 
@@ -59,54 +61,53 @@ update_parser.add_argument('feedback', required=True, help="Enter the news Artic
 # In[ ]:
 
 
-def crossdomain(origin=None, methods=None, headers=None,
-                max_age=21600, attach_to_all=True,
-                automatic_options=True):
-    if methods is not None:
-        methods = ', '.join(sorted(x.upper() for x in methods))
-    if headers is not None and not isinstance(headers, basestring):
-        headers = ', '.join(x.upper() for x in headers)
-    if not isinstance(origin, basestring):
-        origin = ', '.join(origin)
-    if isinstance(max_age, timedelta):
-        max_age = max_age.total_seconds()
+# def crossdomain(origin=None, methods=None, headers=None,
+#                 max_age=21600, attach_to_all=True,
+#                 automatic_options=True):
+#     if methods is not None:
+#         methods = ', '.join(sorted(x.upper() for x in methods))
+#     if headers is not None and not isinstance(headers):
+#         headers = ', '.join(x.upper() for x in headers)
+#     if not isinstance(origin):
+#         origin = ', '.join(origin)
+#     if isinstance(max_age, timedelta):
+#         max_age = max_age.total_seconds()
 
-    def get_methods():
-        if methods is not None:
-            return methods
+#     def get_methods():
+#         if methods is not None:
+#             return methods
 
-        options_resp = current_app.make_default_options_response()
-        return options_resp.headers['allow']
+#         options_resp = current_app.make_default_options_response()
+#         return options_resp.headers['allow']
 
-    def decorator(f):
-        def wrapped_function(*args, **kwargs):
-            if automatic_options and request.method == 'OPTIONS':
-                resp = current_app.make_default_options_response()
-            else:
-                resp = make_response(f(*args, **kwargs))
-            if not attach_to_all and request.method != 'OPTIONS':
-                return resp
+#     def decorator(f):
+#         def wrapped_function(*args, **kwargs):
+#             if automatic_options and request.method == 'OPTIONS':
+#                 resp = current_app.make_default_options_response()
+#             else:
+#                 resp = make_response(f(*args, **kwargs))
+#             if not attach_to_all and request.method != 'OPTIONS':
+#                 return resp
 
-            h = resp.headers
+#             h = resp.headers
 
-            h['Access-Control-Allow-Origin'] = origin
-            h['Access-Control-Allow-Methods'] = get_methods()
-            h['Access-Control-Max-Age'] = str(max_age)
-            if headers is not None:
-                h['Access-Control-Allow-Headers'] = headers
-            return resp
+#             h['Access-Control-Allow-Origin'] = origin
+#             h['Access-Control-Allow-Methods'] = get_methods()
+#             h['Access-Control-Max-Age'] = str(max_age)
+#             if headers is not None:
+#                 h['Access-Control-Allow-Headers'] = headers
+#             return resp
 
-        f.provide_automatic_options = False
-        return update_wrapper(wrapped_function, f)
-    return decorator
+#         f.provide_automatic_options = False
+#         return update_wrapper(wrapped_function, f)
+#     return decorator
 
 
-# In[52]:
+# In[ ]:
 
 
 #REST API
-@api.route('/credibility', methods=['GET', 'OPTIONS'])
-@crossdomain(origin='*')
+@api.route('/credibility')
 class Credibility(Resource):
     @api.expect(news_parser)
     def get(self):
@@ -134,11 +135,10 @@ class Credibility(Resource):
         return {'result' : 'Feedback received'}
 
 
-# In[53]:
+# In[ ]:
 
 
-@api.route('/headlines', methods=['GET', 'OPTIONS'])
-@crossdomain(origin='*')
+@api.route('/headlines')
 class NewsHeadlines(Resource):
     @api.expect(apiKey_parser)
     def get(self):
@@ -157,8 +157,7 @@ class NewsHeadlines(Resource):
 # In[ ]:
 
 
-@api.route('/newsbytopic', methods=['GET', 'OPTIONS'])
-@crossdomain(origin='*')
+@api.route('/newsbytopic')
 class NewsByTopic(Resource):
     @api.expect(topicParam_parser)
     def get(self):
@@ -175,7 +174,7 @@ class NewsByTopic(Resource):
         return topHeadline
 
 
-# In[54]:
+# In[ ]:
 
 
 if(__name__=='__main__'):
