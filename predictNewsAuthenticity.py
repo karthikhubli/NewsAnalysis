@@ -30,7 +30,7 @@ TFIDF_VECT='wordVect.pkl'
 nbModel = None
 vect= None
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 blueprint=Blueprint('api',__name__,url_prefix="/api")
 api=Api(blueprint,doc="/documentation")
 app.register_blueprint(blueprint)
